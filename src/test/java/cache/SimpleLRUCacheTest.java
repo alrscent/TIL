@@ -1,13 +1,16 @@
 package cache;
 
 import cache.model.Item;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SimpleLRUCacheTest {
     @Test
@@ -62,6 +65,9 @@ public class SimpleLRUCacheTest {
         cache.put(grape.getId(), grape);
 
         assertThat(cache.size()).isEqualTo(2);
+        assertThrows(NoSuchElementException.class, () -> {
+            cache.get(tangerine.getId());
+        });
     }
 
     @Test
@@ -83,6 +89,12 @@ public class SimpleLRUCacheTest {
         cache.put(grape.getId(), grape);
         assertThat(cache.getFirst()).isEqualTo(grape);
         assertThat(cache.getLast()).isEqualTo(tangerine);
+
+        Item tangerine2 = new Item(1L, "한라봉");
+        cache.put(tangerine2.getId(), tangerine2);
+        assertThat(cache.size()).isEqualTo(3);
+        assertThat(cache.getFirst().getId()).isSameAs(1L);
+        assertThat(cache.getFirst().getName()).isEqualTo("한라봉");
     }
 
     @Test
