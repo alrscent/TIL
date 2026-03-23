@@ -1,13 +1,11 @@
 package cache;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 public class SimpleLRUCache<K, V> {
     private final Map<K, V> mapForCache = new HashMap<>();
     private final LinkedList<K> listForCache = new LinkedList<>();
+    private final LinkedHashMap<K,V> cache = new LinkedHashMap<>();
     private final int cacheSize;
     private static final int DEFAULT_SIZE = 100;
 
@@ -23,24 +21,18 @@ public class SimpleLRUCache<K, V> {
             throw new NullPointerException("캐시에 저장할 데이터가 null입니다");
         }
 
-        V result = mapForCache.put(key, value);
-        if (result != null) {
-            listForCache.remove(key);
-        }
+        V result = cache.putFirst(key, value);
 
-        if (listForCache.size() == cacheSize) {
-            K removeTarget = listForCache.removeLast();
-            mapForCache.remove(removeTarget);
+        if (cache.size() > cacheSize) {
+            K removeTarget = cache.lastEntry().getKey();
+            cache.remove(removeTarget);
         }
-
-        listForCache.addFirst(key);
     }
 
     public V get(K key) {
-        V item = mapForCache.get(key);
+        V item = cache.get(key);
         if (item != null) {
-            listForCache.remove(key);
-            listForCache.addFirst(key);
+            cache.putFirst(key,  item);
             return item;
         }
 
@@ -48,16 +40,14 @@ public class SimpleLRUCache<K, V> {
     }
 
     public int size() {
-        return mapForCache.size();
+        return cache.size();
     }
 
     public V getLast() {
-        K key = listForCache.getLast();
-        return mapForCache.get(key);
+        return cache.lastEntry().getValue();
     }
 
     public V getFirst() {
-        K key = listForCache.getFirst();
-        return mapForCache.get(key);
+        return cache.firstEntry().getValue();
     }
 }

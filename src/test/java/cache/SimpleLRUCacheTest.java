@@ -2,6 +2,7 @@ package cache;
 
 import cache.model.Item;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -13,6 +14,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SimpleLRUCacheTest {
+    private Item tangerine;
+    private Item strawberry;
+    private Item grape;
+
+    @BeforeEach
+    void setUp() {
+        tangerine = new Item(1L, "귤");
+        strawberry = new Item(2L, "딸기");
+        grape = new Item(3L, "포도");
+    }
     @Test
     @DisplayName("LinkedList 사용 테스트")
     void test() {
@@ -28,25 +39,21 @@ public class SimpleLRUCacheTest {
     @Test
     @DisplayName("캐시 기본동작 - 값 저장 및 꺼내오기")
     void lruCacheGetSetTest() {
-        Item item = new Item(1L, "아이템");
         SimpleLRUCache<Long, Item> cache = new SimpleLRUCache<>();
 
-        cache.put(item.getId(), item);
+        cache.put(tangerine.getId(), tangerine);
         assertThat(cache.size()).isEqualTo(1);
 
         Item itemByCache = cache.get(1L);
-        assertThat(itemByCache).isEqualTo(item);
+        assertThat(itemByCache).isEqualTo(tangerine);
     }
 
     @Test
     @DisplayName("캐시 - 데이터 저장시 중복을 허용하지 않는다")
     void duplicateTest() {
-        Item tangerine = new Item(1L, "귤");
-        Item strawberry = new Item(1L, "딸기");
-
         SimpleLRUCache<Long, Item> cache = new SimpleLRUCache<>();
         cache.put(tangerine.getId(), tangerine);
-        cache.put(strawberry.getId(), strawberry);
+        cache.put(tangerine.getId(), strawberry);
 
         assertThat(cache.size()).isEqualTo(1);
     }
@@ -55,10 +62,6 @@ public class SimpleLRUCacheTest {
     @DisplayName("LRU 캐시 - 캐시 사이즈 초과시 오래된 항목이 제거되어야 한다")
     void lruCacheRemoveTest() {
         SimpleLRUCache<Long, Item> cache = new SimpleLRUCache<>(2);
-
-        Item tangerine = new Item(1L, "귤");
-        Item strawberry = new Item(2L, "딸기");
-        Item grape = new Item(3L, "포도");
 
         cache.put(tangerine.getId(), tangerine);
         cache.put(strawberry.getId(), strawberry);
@@ -73,10 +76,6 @@ public class SimpleLRUCacheTest {
     @Test
     @DisplayName("LRU 캐시 - 데이터 추가/갱신시 최근 사용한 것으로 순서가 변경되어야 한다")
     void lruCacheOrderChangeWhenAddedAndUpdatedTest() {
-        Item tangerine = new Item(1L, "귤");
-        Item strawberry = new Item(2L, "딸기");
-        Item grape = new Item(3L, "포도");
-
         SimpleLRUCache<Long, Item> cache = new SimpleLRUCache<>();
         cache.put(tangerine.getId(), tangerine);
         assertThat(cache.getFirst()).isEqualTo(tangerine);
@@ -100,10 +99,6 @@ public class SimpleLRUCacheTest {
     @Test
     @DisplayName("LRU 캐시 - 데이터를 읽었을 때 최근 사용한 것으로 순서가 변경되어야 한다")
     void lruCacheOrderChangeWhenReadTest() {
-        Item tangerine = new Item(1L, "귤");
-        Item strawberry = new Item(2L, "딸기");
-        Item grape = new Item(3L, "포도");
-
         SimpleLRUCache<Long, Item> cache = new SimpleLRUCache<>();
         cache.put(tangerine.getId(), tangerine);
         cache.put(strawberry.getId(), strawberry);
